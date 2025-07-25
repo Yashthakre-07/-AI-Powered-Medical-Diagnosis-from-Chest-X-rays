@@ -31,7 +31,7 @@ import os
 app = Flask(__name__)
 
 # --- Model and Image Configuration ---
-MODEL_PATH = 'chest/pneumonia_mobilenetv2_model.h5'
+MODEL_PATH = 'pneumonia_mobilenetv2_model.h5'
 IMG_WIDTH, IMG_HEIGHT = 160, 160
 CLASS_LABELS = ['Normal', 'Pneumonia']
 
