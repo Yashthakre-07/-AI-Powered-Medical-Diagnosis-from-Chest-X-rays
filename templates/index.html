@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioScan AI | Holographic Analysis</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Orbitron for a futuristic feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- HELL FUTURISTIC THEME --- */
+        :root {
+            --color-primary: #00ffff; /* Cyan */
+            --color-secondary: #ff00ff; /* Magenta */
+            --color-background: #020418;
+            --color-glow: rgba(0, 255, 255, 0.7);
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--color-background);
+            color: #e6f1ff;
+            overflow: hidden;
+        }
+
+        .font-display {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* --- Background Effects --- */
+        #vfx-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .grid-background, .aurora-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .grid-background {
+            background-image: 
+                linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: pan-grid 120s linear infinite;
+        }
+        @keyframes pan-grid {
+            0% { background-position: 0 0; }
+            100% { background-position: 600px 600px; }
+        }
+        .aurora-background {
+            background: 
+                radial-gradient(ellipse at 70% 30%, rgba(255, 0, 255, 0.15), transparent 60%),
+                radial-gradient(ellipse at 30% 70%, rgba(0, 255, 255, 0.15), transparent 60%);
+            animation: aurora-sway 25s ease-in-out infinite alternate;
+        }
+        @keyframes aurora-sway {
+            from { transform: rotate(-20deg) scale(1.3); }
+            to { transform: rotate(20deg) scale(1.6); }
+        }
+
+        /* --- Holographic Scanner SVG --- */
+        #hologram-container {
+            perspective: 1000px;
+        }
+        #hologram {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            transform-style: preserve-3d;
+            animation: float 8s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px var(--color-glow));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotateX(15deg) rotateY(0deg); }
+            50% { transform: translateY(-20px) rotateX(15deg) rotateY(10deg); }
+        }
+        
+        /* Animation Layers */
+        .grid-sphere {
+            stroke: var(--color-primary);
+            stroke-width: 0.5;
+            opacity: 0.3;
+            animation: rotate-sphere 20s linear infinite;
+            transform-origin: center;
+        }
+        @keyframes rotate-sphere {
+            from { transform: rotateZ(0deg) rotateY(0deg); }
+            to { transform: rotateZ(360deg) rotateY(360deg); }
+        }
+
+        .lung-outline {
+            stroke: var(--color-primary);
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw-in 4s ease-out forwards;
+        }
+        @keyframes draw-in {
+            to { stroke-dashoffset: 0; }
+        }
+        
+        .data-particles {
+            fill: var(--color-secondary);
+            animation: data-flow 3s ease-in-out infinite;
+        }
+        @keyframes data-flow {
+            0%, 100% { r: 0.5; opacity: 0; }
+            50% { r: 1.5; opacity: 1; filter: drop-shadow(0 0 5px var(--color-secondary)); }
+        }
+        .data-particles:nth-child(2n) { animation-delay: 0.5s; }
+        .data-particles:nth-child(3n) { animation-delay: 1s; }
+        .data-particles:nth-child(4n) { animation-delay: 1.5s; }
+        .data-particles:nth-child(5n) { animation-delay: 2s; }
+
+        /* --- UI Elements --- */
+        .glow-border {
+            border: 1px solid transparent;
+            position: relative;
+            background: linear-gradient(var(--color-background), var(--color-background)) padding-box,
+                        linear-gradient(135deg, var(--color-primary), var(--color-secondary)) border-box;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2), 0 0 20px rgba(255, 0, 255, 0.2);
+        }
+        .text-gradient {
+            background: linear-gradient(90deg, #67e8f9, #e0e7ff, #fbc2eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .upload-box.dragover {
+            border-image: linear-gradient(45deg, #f87171, #fb923c, #f87171) 1;
+            background-color: rgba(251, 146, 60, 0.1);
+            box-shadow: 0 0 25px rgba(251, 146, 60, 0.4);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="vfx-container">
+        <div class="grid-background"></div>
+        <div class="aurora-background"></div>
+    </div>
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl min-h-screen flex flex-col justify-center">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-black tracking-wider uppercase text-gradient font-display">BioScan AI</h1>
+            <p class="text-slate-300 opacity-80 mt-2">Holographic Analysis Engine</p>
+        </header>
+
+        <main class="bg-slate-900/60 backdrop-blur-xl rounded-2xl shadow-2xl p-6 md:p-8 glow-border">
+            
+            <div id="main-view">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    
+                    <!-- New Holographic Scanner -->
+                    <div id="hologram-container" class="hidden md:flex justify-center items-center">
+                        <svg id="hologram" viewBox="0 0 200 200">
+                            <!-- Grid Sphere -->
+                            <g class="grid-sphere">
+                                <path d="M100,10 A90,90 0 0,1 100,190 A90,90 0 0,1 100,10" fill="none"/>
+                                <path d="M10,100 A90,90 0 0,1 190,100 A90,90 0 0,1 10,100" fill="none"/>
+                                <path d="M36.3,36.3 A90,90 0 0,1 163.7,163.7 A90,90 0 0,1 36.3,36.3" fill="none"/>
+                                <path d="M36.3,163.7 A90,90 0 0,1 163.7,36.3 A90,90 0 0,1 36.3,163.7" fill="none"/>
+                            </g>
+                            <!-- Lung Outline -->
+                            <path class="lung-outline" d="M100 35 C 70 35 50 55 50 90 C 50 120 65 140 80 150 L 80 160 C 80 165 85 170 90 170 L 110 170 C 115 170 120 165 120 160 L 120 150 C 135 140 150 120 150 90 C 150 55 130 35 100 35 Z M 90 155 L 90 140 C 70 135 60 115 60 90 C 60 65 75 45 100 45 C 125 45 140 65 140 90 C 140 115 130 135 110 140 L 110 155 Z" />
+                            <!-- Data Particles -->
+                            <g>
+                                <circle class="data-particles" cx="100" cy="45" r="1" />
+                                <circle class="data-particles" cx="60" cy="90" r="1" />
+                                <circle class="data-particles" cx="140" cy="90" r="1" />
+                                <circle class="data-particles" cx="90" cy="155" r="1" />
+                                <circle class="data-particles" cx="110" cy="155" r="1" />
+                                <circle class="data-particles" cx="80" cy="60" r="1" />
+                                <circle class="data-particles" cx="120" cy="60" r="1" />
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div id="upload-section" class="flex flex-col justify-center items-center">
+                        <div id="upload-box" class="w-full border-2 border-dashed border-cyan-500/50 rounded-lg p-8 text-center cursor-pointer transition-all duration-300 hover:bg-cyan-500/10 hover:border-cyan-400 group">
+                            <input type="file" id="file-input" class="hidden" accept="image/jpeg, image/png, image/jpg">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-16 h-16 text-cyan-400 mb-4 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 13h6m-3-3v6m-2-10l2-2 2 2m-4 14l2 2 2-2M5.586 5.586a2 2 0 012.828 0L12 9.172l3.586-3.586a2 2 0 112.828 2.828L14.828 12l3.586 3.586a2 2 0 11-2.828 2.828L12 14.828l-3.586 3.586a2 2 0 11-2.828-2.828L9.172 12 5.586 8.414a2 2 0 010-2.828z"></path></svg>
+                                <p class="font-semibold text-cyan-200 font-display text-lg">UPLOAD BIO-SCAN</p>
+                                <p class="text-sm text-slate-400 mt-1">Drag & Drop or Click to Initiate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis View (rest remains similar) -->
+             <div id="analysis-view" class="hidden">
+                 <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="flex flex-col items-center">
+                        <h3 class="text-lg font-bold text-cyan-300 mb-4 uppercase tracking-wider font-display">Input Scan</h3>
+                        <img id="image-preview" class="max-w-full max-h-80 mx-auto rounded-lg shadow-lg glow-border" alt="Image Preview">
+                    </div>
+
+                    <div id="result-section" class="flex flex-col items-center justify-center h-full">
+                        <div id="loader" class="hidden flex-col items-center">
+                            <div class="scanner-loader"></div>
+                            <p class="mt-4 text-cyan-300 animate-pulse font-display">ANALYZING BIOMARKERS...</p>
+                        </div>
+                        <div id="result-card" class="hidden opacity-0 transform -translate-y-4 w-full p-6 rounded-lg text-center transition-all duration-500">
+                            <h2 id="result-title" class="text-2xl font-bold mb-2 uppercase tracking-wider font-display"></h2>
+                            <p class="text-lg text-slate-300">Confidence Score:</p>
+                            <p id="result-confidence" class="text-4xl font-bold mt-1 font-display"></p>
+                            <div id="result-icon" class="my-4 flex justify-center"></div>
+                            <button id="reset-button" class="mt-4 bg-slate-700/50 text-slate-300 font-bold py-2 px-6 rounded-lg border border-slate-600 hover:bg-slate-700/80 hover:border-slate-500 transition-colors">Analyze Another Scan</button>
+                        </div>
+                    </div>
+                 </div>
+                 <div id="error-message" class="hidden text-red-400 font-medium mt-6 text-center border border-red-400/50 bg-red-900/20 p-3 rounded-lg"></div>
+            </div>
+
+        </main>
+        
+        <footer class="text-center mt-8 p-4">
+            <p class="text-xs text-slate-400/60">DISCLAIMER: This AI tool is a demonstration project and is NOT a certified medical device. <br>Do not use for actual medical diagnosis. Consult a qualified healthcare professional for any medical concerns.</p>
+        </footer>
+    </div>
+
+    <script>
+        // JS remains largely the same as it controls the flow, not the CSS animations.
+        const uploadBox = document.getElementById('upload-box');
+        const fileInput = document.getElementById('file-input');
+        const imagePreview = document.getElementById('image-preview');
+        const loader = document.getElementById('loader');
+        const resultCard = document.getElementById('result-card');
+        const resultTitle = document.getElementById('result-title');
+        const resultConfidence = document.getElementById('result-confidence');
+        const resultIcon = document.getElementById('result-icon');
+        const errorMessage = document.getElementById('error-message');
+        const mainView = document.getElementById('main-view');
+        const analysisView = document.getElementById('analysis-view');
+        const resetButton = document.getElementById('reset-button');
+
+        uploadBox.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        uploadBox.addEventListener('dragover', (e) => { e.preventDefault(); uploadBox.classList.add('dragover'); });
+        uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
+        uploadBox.addEventListener('drop', (e) => { e.preventDefault(); uploadBox.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+        resetButton.addEventListener('click', resetUI);
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) {
+                showError('Invalid file type. Please upload a PNG, JPG, or JPEG image.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                mainView.classList.add('hidden');
+                analysisView.classList.remove('hidden');
+                hideResult();
+                startAnalysis(file);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function startAnalysis(file) {
+            loader.classList.remove('hidden');
+            loader.classList.add('flex');
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                await new Promise(resolve => setTimeout(resolve, 3500)); // Increased delay for effect
+                const response = await fetch('/predict', { method: 'POST', body: formData });
+                loader.classList.add('hidden');
+                loader.classList.remove('flex');
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: 'Unknown server error.' }));
+                    throw new Error(errorData.error);
+                }
+                const data = await response.json();
+                displayResult(data.prediction, data.confidence);
+            } catch (error) {
+                loader.classList.add('hidden');
+                loader.classList.remove('flex');
+                showError(error.message || 'Failed to connect to analysis server.');
+            }
+        }
+
+        function displayResult(prediction, confidence) {
+            resultTitle.textContent = `${prediction} Detected`;
+            resultConfidence.textContent = `${confidence}%`;
+
+            let cardClass = 'bg-gradient-to-br border';
+            let titleClass = 'text-2xl font-bold mb-2 uppercase tracking-wider font-display';
+            let confidenceClass = 'text-4xl font-bold mt-1 font-display';
+            let iconHTML = '';
+
+            if (prediction === 'Pneumonia') {
+                cardClass += ' from-red-900/30 to-slate-900/30 border-red-500/50';
+                titleClass += ' text-red-400';
+                confidenceClass += ' text-red-300';
+                iconHTML = `<svg class="w-16 h-16 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            } else {
+                cardClass += ' from-green-900/30 to-slate-900/30 border-green-500/50';
+                titleClass += ' text-green-400';
+                confidenceClass += ' text-green-300';
+                iconHTML = `<svg class="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+            
+            resultCard.className = `w-full p-6 rounded-lg text-center transition-all duration-500 ${cardClass}`;
+            resultTitle.className = titleClass;
+            resultConfidence.className = confidenceClass;
+            resultIcon.innerHTML = iconHTML;
+            
+            resultCard.classList.remove('hidden');
+            setTimeout(() => {
+                resultCard.classList.remove('opacity-0', '-translate-y-4');
+            }, 50);
+        }
+
+        function hideResult() {
+            resultCard.classList.add('hidden', 'opacity-0', '-translate-y-4');
+            errorMessage.classList.add('hidden');
+        }
+
+        function showError(message) {
+            errorMessage.textContent = `Analysis Failed: ${message}`;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function resetUI() {
+            mainView.classList.remove('hidden');
+            analysisView.classList.add('hidden');
+            fileInput.value = '';
+            hideResult();
+        }
+    </script>
+</body>
+</html>
